@@ -1,21 +1,52 @@
 
-from flask import Flask, render_template
-from transformers import pipeline
+from flask import Flask, render_template, jsonify, request
 app = Flask(__name__)
 
+#sample JSON formatted Game, to be replaced with SQL database
+lobbies = [
+    {
+        'id': 1,
+        'title': u'Prompt Box Party',
+        'description': u'This game is not full, please join!',
+        'num_players': 0,
+    },
 
+    {
+        'id': 2,
+        'title': u'Game is Full',
+        'description': u'This game is already full. Sorry = (',
+        'num_players': 2
+    }
+]
+
+# Placeholder Function to create AI-Generated Text
+def get_text(user_input):
+    str = """Lorem ipsum dolor sit amet, consectetur adipiscing elit,
+    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
+    ad minim veniam, quis nostrud exercitation ullamco
+    laboris nisi ut aliquip ex ea"""
+    return user_input + " " + str
 
 @app.route("/")
 def hello():
     return "Hello World"
 
-@app.route('/text/<string:input>')
+# Simple Route to Return Generated Text
+@app.route('/api/generate_text/<string:input>', methods=["GET"])
 def generate_text(input):
-    generator = pipeline('text-generation', model='gpt2')
-    out = generator(input, max_length=30, num_return_sequences=1)
+    return jsonify({'generated_text': get_text(input)})
 
-    return str(out)
+# Return All Active Lobbies
+@app.route('/api/games', methods=["GET"])
+def get_games():
+    return jsonify({'games': lobbies})
+
+# Return All Open Lobbies
+@app.route('/api/games/open', methods=['GET'])
+def get_task():
+    open_games = [game for game in lobbies if game['num_players'] < 2]
+    return jsonify({'games': open_games})
 
 
-if __name__ == "__main__":
-    app.run(debug = True, host = "0.0.0.0", port = 4000)
+if __name__ == '__main__':
+    app.run(debug=True)
