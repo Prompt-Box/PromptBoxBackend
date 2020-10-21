@@ -19,6 +19,17 @@ lobbies = [
     }
 ]
 
+active_games = [
+    {
+        'id': 1,
+        'players': [u'Max', u'Akhil'],
+        'player1_turn': True,
+        'score': [0, 0],
+        'round': 1
+
+    }
+]
+
 # Placeholder Function to create AI-Generated Text
 def get_text(user_input):
     str = """Lorem ipsum dolor sit amet, consectetur adipiscing elit,
@@ -46,6 +57,12 @@ def get_games():
 def get_task():
     open_games = [game for game in lobbies if game['num_players'] < 2]
     return jsonify({'games': open_games})
+
+@app.route('/api/games/active/<int: game_id>', methods=['GET'])
+def get_games_by_id():
+    game = [game for game in active_games if game['id']== game_id]
+    return jsonify({'game': game})
+
 
 
 if __name__ == '__main__':
