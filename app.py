@@ -1,5 +1,7 @@
 
 from flask import Flask, render_template, jsonify, request, Response
+import numpy as np
+from hmmlearn import hmm
 app = Flask(__name__)
 
 #sample JSON formatted Game, to be replaced with SQL database
@@ -44,6 +46,27 @@ def get_text(user_input):
     sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
     ad minim veniam, quis nostrud exercitation ullamco
     laboris nisi ut aliquip ex ea"""
+
+    #TODO Load in Model, this is a sample
+    
+    words = ["the", "be", "to"]
+
+    model = hmm.GaussianHMM(n_components=3, covariance_type="full")
+    model.startprob_ = np.array([0.6, 0.3, 0.1])
+    model.transmat_ = np.array([[0.7, 0.2, 0.1],
+                                [0.3, 0.5, 0.2],
+                                [0.3, 0.3, 0.4]])
+    model.means_ = np.array([[0.0, 0.0], [3.0, -3.0], [5.0, 10.0]])
+    model.covars_ = np.tile(np.identity(2), (3, 1, 1))
+    X, Z = model.sample(100)
+
+    #TODO Predict Text, I'm frankly not sure what I'm sampling right now
+    str = ""
+    for i in X:
+        print(i)
+        if(i[0] < 3 and i[0] >= 0):
+            str += words[int(i[0])] + " "
+
     return user_input + " " + str
 
 @app.route("/")
