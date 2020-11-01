@@ -2,6 +2,7 @@
 from flask import Flask, render_template, jsonify, request, Response
 import numpy as np
 from hmmlearn import hmm
+import model
 app = Flask(__name__)
 
 #sample JSON formatted Game, to be replaced with SQL database
@@ -36,38 +37,23 @@ games = [
 ]
 
 
-
+languageModel = []
+network = 0
 
 # Placeholder Function to create AI-Generated Text
 """Test Functions"""
 
 def get_text(user_input):
-    str = """Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-    ad minim veniam, quis nostrud exercitation ullamco
-    laboris nisi ut aliquip ex ea"""
-
-    #TODO Load in Model, this is a sample
     
-    words = ["the", "be", "to"]
+    #Generate Text
 
-    model = hmm.GaussianHMM(n_components=3, covariance_type="full")
-    model.startprob_ = np.array([0.6, 0.3, 0.1])
-    model.transmat_ = np.array([[0.7, 0.2, 0.1],
-                                [0.3, 0.5, 0.2],
-                                [0.3, 0.3, 0.4]])
-    model.means_ = np.array([[0.0, 0.0], [3.0, -3.0], [5.0, 10.0]])
-    model.covars_ = np.tile(np.identity(2), (3, 1, 1))
-    X, Z = model.sample(100)
+    symbols, states = network.sample(50)
+    output = ""
+    for num in np.squeeze(symbols):
+        if(num >= 0 and num < len(languageModel)):
+            output += languageModel[int(num)] + " "
 
-    #TODO Predict Text, I'm frankly not sure what I'm sampling right now
-    str = ""
-    for i in X:
-        print(i)
-        if(i[0] < 3 and i[0] >= 0):
-            str += words[int(i[0])] + " "
-
-    return user_input + " " + str
+    return output
 
 @app.route("/")
 def hello():
@@ -188,5 +174,11 @@ def update_round(id):
 
 if __name__ == '__main__':
 
+    #Create model and train, only temporary, will be timed later
+    languageModel = model.buildLanguageModelFromText()
+    network = model.createModel()
+    network = model.trainModel(network, languageModel)
+    
     # threaded, so many users can use
     app.run(threaded=True, port=4000)
+
