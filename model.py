@@ -13,14 +13,14 @@ def loadModel():
     
     return network
 
-#TODO: Defines network architecture and returns untrained movel
+#Defines network architecture and returns untrained movel
 def createModel():
-    network = hmm.GaussianHMM(n_components=10, covariance_type="full", n_iter=10)
+    network = hmm.GaussianHMM(n_components=100, covariance_type="full", n_iter=10)
 
     
     return network
 
-#TODO: Trains model based on data in text file, may be database later
+#Trains model based on data in text file, may be database later
 def trainModel(network, languageModel):
     textData = open("textData.txt", "rb")
     wordCount = 1
