@@ -21,19 +21,26 @@ def trainModel(network, languageModel):
     textData = open("textData.txt", "rb")
     wordCount = 1
 
-    trainingSequence = []
+    trainingSequences = []
+    lengths = []
 
+    sequenceNumber = 0
     for i in textData.readlines():
+        trainingSequences.append([])
+
         words = i.split(" ")
         for j in words:
-            trainingSequence.append(languageModel.index(j))
+            trainingSequences[sequenceNumber].append(languageModel.index(j))
 
-    #print(trainingSequence)
+        lengths.append(len(words))
+        sequenceNumber += 1
 
-    trainingSequence = np.array(trainingSequence)
-    trainingSequence = trainingSequence.reshape(-1, 1)
+    #print(trainingSequences)
 
-    network.fit(trainingSequence)
+    trainingSequences = np.array(trainingSequences)
+    trainingSequences = trainingSequences.reshape(-1, 1)
+
+    network.fit(trainingSequences, lengths)
 
     with open("hmm.pkl", "wb") as file: 
         pickle.dump(network, file)
