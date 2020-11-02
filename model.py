@@ -1,23 +1,19 @@
 import numpy as np
 from hmmlearn import hmm
+import pickle
 
 #TODO: Will return saved model from file
 def loadModel():
-    network = hmm.GaussianHMM(n_components=3, covariance_type="full")
-    network.startprob_ = np.array([0.6, 0.3, 0.1])
-    network.transmat_ = np.array([[0.7, 0.2, 0.1],
-                                [0.3, 0.5, 0.2],
-                                [0.3, 0.3, 0.4]])
-    network.means_ = np.array([[0.0, 0.0], [3.0, -3.0], [5.0, 10.0]])
-    network.covars_ = np.tile(np.identity(2), (3, 1, 1))
+
+    with open("hmm.pkl", "rb") as file: 
+        network = pickle.load(file)
     
     return network
 
 #Defines network architecture and returns untrained movel
 def createModel():
-    network = hmm.GaussianHMM(n_components=100, covariance_type="full", n_iter=10)
+    network = hmm.GaussianHMM(n_components=50, covariance_type="full", n_iter=10)
 
-    
     return network
 
 #Trains model based on data in text file, may be database later
@@ -38,6 +34,9 @@ def trainModel(network, languageModel):
     trainingSequence = trainingSequence.reshape(-1, 1)
 
     network.fit(trainingSequence)
+
+    with open("hmm.pkl", "wb") as file: 
+        pickle.dump(network, file)
 
     return network
 

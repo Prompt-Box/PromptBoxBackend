@@ -38,7 +38,6 @@ games = [
 
 
 languageModel = []
-network = 0
 
 # Placeholder Function to create AI-Generated Text
 """Test Functions"""
@@ -46,7 +45,7 @@ network = 0
 def get_text(user_input):
     
     #Generate Text
-
+    network = model.loadModel()
     symbols, states = network.sample(50)
     output = ""
     for num in np.squeeze(symbols):
