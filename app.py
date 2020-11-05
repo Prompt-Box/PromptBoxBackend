@@ -81,7 +81,9 @@ def get_games_by_id():
 # Return All Games that have not started
 @app.route('/api/lobby', methods=["GET"])
 def get_lobby():
-    return jsonify({'lobby': lobby})
+    response = jsonify({'lobby': lobby})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 # Let a Player Join a Lobby
 @app.route('/api/lobby/join/<int:id>/<string:name>', methods=["POST"])
