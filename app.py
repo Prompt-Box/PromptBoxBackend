@@ -61,7 +61,9 @@ def hello():
 # Simple Route to Return Generated Text
 @app.route('/api/generate_text/<string:input>', methods=["GET"])
 def generate_text(input):
-    return jsonify({'generated_text': get_text(input)})
+    response = jsonify({'generated_text': get_text(input)})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 """@app.route('/api/games/open', methods=['GET'])
 def get_task():
@@ -78,7 +80,9 @@ def get_games_by_id():
 # Return All Games that have not started
 @app.route('/api/lobby', methods=["GET"])
 def get_lobby():
-    return jsonify({'lobby': lobby})
+    response = jsonify({'lobby': lobby})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 # Let a Player Join a Lobby
 @app.route('/api/lobby/join/<int:id>/<string:name>', methods=["POST"])
@@ -113,7 +117,9 @@ def create_game(title, name):
         'players': [name],
         'num_players': 1
     })
-    return "True"
+    response = jsonify("True")
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 
 # Return Game status
