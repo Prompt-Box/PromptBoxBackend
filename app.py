@@ -37,7 +37,7 @@ games = [
 ]
 
 
-languageModel = []
+languageModel, dictionary = [], {}
 
 # Placeholder Function to create AI-Generated Text
 """Test Functions"""
@@ -174,9 +174,9 @@ def update_round(id):
 if __name__ == '__main__':
 
     #Create model and train, only temporary, will be timed later
-    languageModel = model.buildLanguageModelFromText()
+    languageModel, dictionary = model.buildLanguageModelFromText()
     network = model.createModel()
-    network = model.trainModel(network, languageModel)
+    #network = model.trainModel(network, languageModel, dictionary)
     
     # threaded, so many users can use
     app.run(threaded=True, port=4000)

@@ -1,6 +1,7 @@
 import numpy as np
 from hmmlearn import hmm
 import pickle
+import re
 
 #TODO: Will return saved model from file
 def loadModel():
@@ -12,12 +13,12 @@ def loadModel():
 
 #Defines network architecture and returns untrained movel
 def createModel():
-    network = hmm.GaussianHMM(n_components=50, covariance_type="full", n_iter=10)
-
+    network = hmm.GaussianHMM(n_components=50, covariance_type="full", n_iter=5)
+    network.monitor_
     return network
 
 #Trains model based on data in text file, may be database later
-def trainModel(network, languageModel):
+def trainModel(network, languageModel, wordDictionary):
     textData = open("textData.txt", "rb")
     wordCount = 1
 
@@ -26,19 +27,30 @@ def trainModel(network, languageModel):
 
     sequenceNumber = 0
     for i in textData.readlines():
-        trainingSequences.append([])
+        sequence = []
 
-        words = i.split(" ")
+        words = i.lower()
+        words = re.sub("[:;\"]", "", words)
+        words = re.sub("[\(\)]", " ", words)
+        words = re.sub("([\.!?,])", " \g<0>", words)
+
+        words = words.split(" ")[1:]
         for j in words:
-            trainingSequences[sequenceNumber].append(languageModel.index(j))
+            sequence.append(wordDictionary[j])
 
         lengths.append(len(words))
         sequenceNumber += 1
+        sequence = np.array(sequence)
+        trainingSequences.append(sequence)
 
-    #print(trainingSequences)
+    print("Finished creating training sequence data")
 
-    trainingSequences = np.array(trainingSequences)
+    trainingSequences = np.concatenate(trainingSequences)
     trainingSequences = trainingSequences.reshape(-1, 1)
+
+    print("Finished converting to numpy")
+    #print(trainingSequences[-10:])
+    print(trainingSequences.shape)
 
     network.fit(trainingSequences, lengths)
 
@@ -50,16 +62,25 @@ def trainModel(network, languageModel):
 #Builds a language model for the HMM
 def buildLanguageModelFromText():
     uniqueWords = []
+    wordDictionary = {}
     textData = open("textData.txt", "rb")
     wordCount = 1
 
     for i in textData.readlines():
-        words = i.split(" ")
-        for j in words:
-            if(j not in uniqueWords):
-                #If a new word isn't in the uniquewords dictionary, add it
-                uniqueWords.append(j)
-            else:
-                continue
+        words = i.lower()
+        words = re.sub("[:;\"]", "", words)
+        words = re.sub("[\(\)]", " ", words)
+        words = re.sub("([\.!?,])", " \g<0>", words)
 
-    return uniqueWords
+        words = words.split(" ")[1:]
+        for j in words:
+            try:
+                exists = wordDictionary[j]
+            except:
+                #If a new word isn't in the uniquewords tracked, add it
+                uniqueWords.append(j)
+                wordDictionary[j] = len(uniqueWords) - 1
+
+    print(uniqueWords[-10:])
+    print("finished generating language model")
+    return uniqueWords, wordDictionary
