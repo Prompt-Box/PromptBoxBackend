@@ -62,7 +62,9 @@ def hello():
 # Simple Route to Return Generated Text
 @app.route('/api/generate_text/<string:input>', methods=["GET"])
 def generate_text(input):
-    return jsonify({'generated_text': get_text(input)})
+    response = jsonify({'generated_text': get_text(input)})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 """@app.route('/api/games/open', methods=['GET'])
 def get_task():
