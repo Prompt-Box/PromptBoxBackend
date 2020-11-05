@@ -118,7 +118,9 @@ def create_game(title, name):
         'players': [name],
         'num_players': 1
     })
-    return "True"
+    response = jsonify("True")
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 
 # Return Game status
