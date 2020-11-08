@@ -97,7 +97,7 @@ def get_lobby():
 
     lobbies = [serialize_lobby(lobby) for lobby in Lobby.query.all()]
     db.session.close()
-    response = jsonify({"lobbies" : serialize_game(lobbies)})
+    response = jsonify({"lobbies" : lobbies})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
