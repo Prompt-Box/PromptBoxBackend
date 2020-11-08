@@ -241,4 +241,4 @@ if __name__ == '__main__':
     #network = model.trainModel(network, languageModel, dictionary)
 
     # threaded, so many users can use
-    app.run(threaded=True, port=4000)
+    app.run(threaded=True)
