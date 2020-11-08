@@ -97,7 +97,9 @@ def get_lobby():
 
     lobbies = [serialize_lobby(lobby) for lobby in Lobby.query.all()]
     db.session.close()
-    return jsonify({"lobbies": lobbies})
+    response = jsonify({"lobbies" : serialize_game(lobbies)})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 # Let a Player Join a Lobby
 @app.route('/api/lobby/join/<string:title>/<string:name>', methods=["POST"])
