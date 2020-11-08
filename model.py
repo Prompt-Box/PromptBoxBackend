@@ -3,7 +3,7 @@ from hmmlearn import hmm
 import pickle
 import re
 
-#TODO: Will return saved model from file
+#Returns saved model from file
 def loadModel():
 
     with open("hmm.pkl", "rb") as file: 
@@ -29,7 +29,7 @@ def trainModel(network, languageModel, wordDictionary):
     for i in textData.readlines():
         sequence = []
 
-        words = i.lower()
+        words = str(i.lower())
         words = re.sub("[:;\"]", "", words)
         words = re.sub("[\(\)]", " ", words)
         words = re.sub("([\.!?,])", " \g<0>", words)
@@ -67,7 +67,7 @@ def buildLanguageModelFromText():
     wordCount = 1
 
     for i in textData.readlines():
-        words = i.lower()
+        words = str(i.lower())
         words = re.sub("[:;\"]", "", words)
         words = re.sub("[\(\)]", " ", words)
         words = re.sub("([\.!?,])", " \g<0>", words)
