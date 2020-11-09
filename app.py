@@ -20,8 +20,10 @@ def serialize_game(g):
     return {
         "title": g.title,
         "player1": g.player1,
+        "player1_text": g.player1_text,
         "player1_score": g.player1_score,
         "player2": g.player2,
+        "player2_text": g.player1_text,
         "player2_score": g.player2_score,
         "player1_turn": g.player1_turn,
         "round": g.round,
@@ -41,8 +43,10 @@ class Game(db.Model):
     #id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     title = db.Column(db.String(120), primary_key=True, unique=True, nullable=False)
     player1 = db.Column(db.String(50), nullable=False)
+    player1_text = db.Column(db.String(200), nullable=False)
     player1_score = db.Column(db.Integer, nullable=False)
     player2 = db.Column(db.String(50), nullable=False)
+    player2_text = db.Column(db.String(200), nullable=False)
     player2_score = db.Column(db.Integer, nullable=False)
     player1_turn = db.Column(db.Boolean, nullable=False)
     round = db.Column(db.Integer, nullable=False)
@@ -111,8 +115,10 @@ def join_game(title, name):
     new_game = Game(
         title = lobby.title,
         player1 = lobby.player1,
+        player1_text = "placeholder",
         player1_score = 0,
         player2 = name,
+        player2_text = "placeholder",
         player2_score = 0,
         player1_turn = True,
         round = 1,
@@ -124,6 +130,44 @@ def join_game(title, name):
     response = jsonify({"game" : serialize_game(new_game)})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
+
+# Let a Player add their text
+@app.route('/api/games/text/<string:title>/<string:name>', methods=["POST"])
+def save_text(title, name):
+    game = Game.query.get(title)
+    generatedText = request.args.get('text')
+    
+    if(not game):
+        return Response(
+            "Game Title Not valid",
+            status=400,
+        )
+
+    #Check whose turn it is
+    if(game.player1 == name and game.player1_turn):
+        #It's player 1's turn
+        game.player1_text = generatedText
+        db.session.commit()
+
+        response = jsonify({"game" : serialize_game(game)})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        db.session.close()
+        return response
+    elif(game.player2 == name and not game.player1_turn):
+        #It's player 2's turn
+        game.player2_text = generatedText
+        db.session.commit()
+
+        response = jsonify({"game" : serialize_game(game)})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        db.session.close()
+        return response
+    else:
+        return Response(
+            "Not your turn",
+            status=400,
+        )
+
 
 # Let a Player Create a Lobby
 @app.route('/api/lobby/create/<string:title>/<string:name>', methods=["POST"])
