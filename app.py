@@ -2,8 +2,9 @@
 from flask import Flask, render_template, jsonify, request, Response
 from flask_sqlalchemy import SQLAlchemy
 import numpy as np
+import random
 from hmmlearn import hmm
-#import model
+import model
 app = Flask(__name__)
 
 #sample JSON formatted Game, to be replaced with SQL database
@@ -55,33 +56,35 @@ db.create_all()
 
 
 
-#languageModel, dictionary = [], {}
+languageModel, dictionary = [], {}
 
 # Placeholder Function to create AI-Generated Text
 """Test Functions"""
-"""
-def get_text(user_input):
+
+def generate_text():
 
     #Generate Text
     network = model.loadModel()
-    symbols, states = network.sample(50)
+    symbols, states = network.sample(10)
     output = ""
     for num in np.squeeze(symbols):
         if(num >= 0 and num < len(languageModel)):
             output += languageModel[int(num)] + " "
 
     return output
-"""
+
 @app.route("/")
 def hello():
     return "Hello World"
 
+'''
 # Simple Route to Return Generated Text
 @app.route('/api/generate_text/<string:input>', methods=["GET"])
 def generate_text(input):
     response = jsonify({'generated_text': get_text(input)})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
+'''
 
 """@app.route('/api/games/open', methods=['GET'])
 def get_task():
@@ -167,6 +170,31 @@ def save_text(title, name):
             "Not your turn",
             status=400,
         )
+
+# Let a Player get texts to guess from
+@app.route('/api/games/guess/<string:title>/<string:name>', methods=["GET"])
+def get_text(title, name):
+    game = Game.query.get(title)
+    
+    if(not game):
+        return Response(
+            "Game Title Not valid",
+            status=400,
+        )
+
+    texts = []
+    texts.append(generate_text())
+    texts.append(generate_text())
+    texts.append(generate_text())
+    if(game.player1_turn):
+        texts.append(game.player2_text)
+    else:
+        texts.append(game.player1_text)
+    random.shuffle(texts)
+
+    response = jsonify({"text" : texts})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
 
 
 # Let a Player Create a Lobby
@@ -280,7 +308,7 @@ def end_game(title):
 if __name__ == '__main__':
 
     #Create model and train, only temporary, will be timed later
-    #languageModel, dictionary = model.buildLanguageModelFromText()
+    languageModel, dictionary = model.buildLanguageModelFromText()
     #network = model.createModel()
     #network = model.trainModel(network, languageModel, dictionary)
 
