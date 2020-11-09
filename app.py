@@ -150,6 +150,7 @@ def save_text(title, name):
     if(game.player1 == name and game.player1_turn):
         #It's player 1's turn
         game.player1_text = generatedText
+        game.player1_turn = False
         db.session.commit()
 
         response = jsonify({"game" : serialize_game(game)})
@@ -159,6 +160,7 @@ def save_text(title, name):
     elif(game.player2 == name and not game.player1_turn):
         #It's player 2's turn
         game.player2_text = generatedText
+        game.player1_turn = True
         db.session.commit()
 
         response = jsonify({"game" : serialize_game(game)})
