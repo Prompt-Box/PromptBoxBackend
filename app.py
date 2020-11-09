@@ -196,6 +196,32 @@ def get_text(title, name):
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
+# Let a Player check if their guess is right
+@app.route('/api/games/check/<string:title>/<string:name>', methods=["GET"])
+def get_answer(title, name):
+    game = Game.query.get(title)
+    if(not game):
+        return Response(
+            "Game Title Not valid",
+            status=400,
+        )
+
+    textToCheck = request.args.get('text')
+    response = None
+    if(name == game.player1):
+        if(textToCheck == game.player2_text):
+            response = jsonify({"result" : True})
+        else:
+            response = jsonify({"result" : False})
+    elif(name == game.player2):
+        if(textToCheck == game.player1_text):
+            response = jsonify({"result" : True})
+        else:
+            response = jsonify({"result" : False})
+
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
 
 # Let a Player Create a Lobby
 @app.route('/api/lobby/create/<string:title>/<string:name>', methods=["POST"])
