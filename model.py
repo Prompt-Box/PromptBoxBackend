@@ -45,6 +45,10 @@ def trainModel(network, languageModel, wordDictionary):
 
     print("Finished creating training sequence data")
 
+    #TEMPORARY FOR RESTRICTING AMOUNT OF DATA TO TRAIN ON
+    trainingSequences = trainingSequences[:100]
+    lengths = lengths[:100]
+
     trainingSequences = np.concatenate(trainingSequences)
     trainingSequences = trainingSequences.reshape(-1, 1)
 

@@ -2,8 +2,9 @@
 from flask import Flask, render_template, jsonify, request, Response
 from flask_sqlalchemy import SQLAlchemy
 import numpy as np
+import random
 from hmmlearn import hmm
-#import model
+import model
 app = Flask(__name__)
 
 #sample JSON formatted Game, to be replaced with SQL database
@@ -20,8 +21,10 @@ def serialize_game(g):
     return {
         "title": g.title,
         "player1": g.player1,
+        "player1_text": g.player1_text,
         "player1_score": g.player1_score,
         "player2": g.player2,
+        "player2_text": g.player1_text,
         "player2_score": g.player2_score,
         "player1_turn": g.player1_turn,
         "round": g.round,
@@ -41,8 +44,10 @@ class Game(db.Model):
     #id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     title = db.Column(db.String(120), primary_key=True, unique=True, nullable=False)
     player1 = db.Column(db.String(50), nullable=False)
+    player1_text = db.Column(db.String(200), nullable=False)
     player1_score = db.Column(db.Integer, nullable=False)
     player2 = db.Column(db.String(50), nullable=False)
+    player2_text = db.Column(db.String(200), nullable=False)
     player2_score = db.Column(db.Integer, nullable=False)
     player1_turn = db.Column(db.Boolean, nullable=False)
     round = db.Column(db.Integer, nullable=False)
@@ -51,33 +56,35 @@ db.create_all()
 
 
 
-#languageModel, dictionary = [], {}
+languageModel, dictionary = [], {}
 
 # Placeholder Function to create AI-Generated Text
 """Test Functions"""
-"""
-def get_text(user_input):
+
+def generate_text():
 
     #Generate Text
     network = model.loadModel()
-    symbols, states = network.sample(50)
+    symbols, states = network.sample(10)
     output = ""
     for num in np.squeeze(symbols):
         if(num >= 0 and num < len(languageModel)):
             output += languageModel[int(num)] + " "
 
     return output
-"""
+
 @app.route("/")
 def hello():
     return "Hello World"
 
+'''
 # Simple Route to Return Generated Text
 @app.route('/api/generate_text/<string:input>', methods=["GET"])
 def generate_text(input):
     response = jsonify({'generated_text': get_text(input)})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
+'''
 
 """@app.route('/api/games/open', methods=['GET'])
 def get_task():
@@ -113,8 +120,10 @@ def join_game(title, name):
     new_game = Game(
         title = lobby.title,
         player1 = lobby.player1,
+        player1_text = "placeholder",
         player1_score = 0,
         player2 = name,
+        player2_text = "placeholder",
         player2_score = 0,
         player1_turn = True,
         round = 1,
@@ -126,6 +135,97 @@ def join_game(title, name):
     response = jsonify({"game" : serialize_game(new_game)})
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
+
+# Let a Player add their text
+@app.route('/api/games/text/<string:title>/<string:name>', methods=["POST"])
+def save_text(title, name):
+    game = Game.query.get(title)
+    generatedText = request.args.get('text')
+    
+    if(not game):
+        return Response(
+            "Game Title Not valid",
+            status=400,
+        )
+
+    #Check whose turn it is
+    if(game.player1 == name and game.player1_turn):
+        #It's player 1's turn
+        game.player1_text = generatedText
+        game.player1_turn = False
+        db.session.commit()
+
+        response = jsonify({"game" : serialize_game(game)})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        db.session.close()
+        return response
+    elif(game.player2 == name and not game.player1_turn):
+        #It's player 2's turn
+        game.player2_text = generatedText
+        game.player1_turn = True
+        db.session.commit()
+
+        response = jsonify({"game" : serialize_game(game)})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        db.session.close()
+        return response
+    else:
+        return Response(
+            "Not your turn",
+            status=400,
+        )
+
+# Let a Player get texts to guess from
+@app.route('/api/games/guess/<string:title>/<string:name>', methods=["GET"])
+def get_text(title, name):
+    game = Game.query.get(title)
+    
+    if(not game):
+        return Response(
+            "Game Title Not valid",
+            status=400,
+        )
+
+    texts = []
+    texts.append(generate_text())
+    texts.append(generate_text())
+    texts.append(generate_text())
+    if(game.player1_turn):
+        texts.append(game.player2_text)
+    else:
+        texts.append(game.player1_text)
+    random.shuffle(texts)
+
+    response = jsonify({"text" : texts})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+# Let a Player check if their guess is right
+@app.route('/api/games/check/<string:title>/<string:name>', methods=["GET"])
+def get_answer(title, name):
+    game = Game.query.get(title)
+    if(not game):
+        return Response(
+            "Game Title Not valid",
+            status=400,
+        )
+
+    textToCheck = request.args.get('text')
+    response = None
+    if(name == game.player1):
+        if(textToCheck == game.player2_text):
+            response = jsonify({"result" : True})
+        else:
+            response = jsonify({"result" : False})
+    elif(name == game.player2):
+        if(textToCheck == game.player1_text):
+            response = jsonify({"result" : True})
+        else:
+            response = jsonify({"result" : False})
+
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
 
 # Let a Player Create a Lobby
 @app.route('/api/lobby/create/<string:title>/<string:name>', methods=["POST"])
@@ -238,7 +338,7 @@ def end_game(title):
 if __name__ == '__main__':
 
     #Create model and train, only temporary, will be timed later
-    #languageModel, dictionary = model.buildLanguageModelFromText()
+    languageModel, dictionary = model.buildLanguageModelFromText()
     #network = model.createModel()
     #network = model.trainModel(network, languageModel, dictionary)
 
