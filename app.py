@@ -24,7 +24,7 @@ def serialize_game(g):
         "player1_text": g.player1_text,
         "player1_score": g.player1_score,
         "player2": g.player2,
-        "player2_text": g.player1_text,
+        "player2_text": g.player2_text,
         "player2_score": g.player2_score,
         "player1_turn": g.player1_turn,
         "round": g.round,
