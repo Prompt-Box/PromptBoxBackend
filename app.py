@@ -56,12 +56,13 @@ db.create_all()
 
 
 
-languageModel, dictionary = [], {}
 
 # Placeholder Function to create AI-Generated Text
 """Test Functions"""
 
 def generate_text():
+
+    languageModel, dictionary = model.loadLanguage()
 
     #Generate Text
     network = model.loadModel()
@@ -338,7 +339,8 @@ def end_game(title):
 if __name__ == '__main__':
 
     #Create model and train, only temporary, will be timed later
-    languageModel, dictionary = model.buildLanguageModelFromText()
+    #languageModel, dictionary = model.buildLanguageModelFromText()
+    
     #network = model.createModel()
     #network = model.trainModel(network, languageModel, dictionary)
 

@@ -11,6 +11,15 @@ def loadModel():
     
     return network
 
+#Return language model
+def loadLanguage():
+    with open("languageModel.pkl", "rb") as file: 
+        uniqueWords = pickle.load(file)
+    with open("wordDictionary.pkl", "rb") as file: 
+        wordDictionary = pickle.load(file)
+    
+    return uniqueWords, wordDictionary
+
 #Defines network architecture and returns untrained movel
 def createModel():
     network = hmm.GaussianHMM(n_components=50, covariance_type="full", n_iter=5)
@@ -87,4 +96,10 @@ def buildLanguageModelFromText():
 
     print(uniqueWords[-10:])
     print("finished generating language model")
+
+    with open("languageModel.pkl", "wb") as file: 
+        pickle.dump(uniqueWords, file)
+    with open("wordDictionary.pkl", "wb") as file: 
+        pickle.dump(wordDictionary, file)
+
     return uniqueWords, wordDictionary
