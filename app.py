@@ -318,6 +318,9 @@ def update_round(title):
         )
 
     game.round += 1
+    game.player1_text = ""
+    game.player2_text = ""
+    game.player1_turn = True
 
     db.session.commit()
     db.session.close()
