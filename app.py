@@ -208,14 +208,14 @@ def get_answer(title, name):
     response = None
     if(name == game.player1):
         if(textToCheck == game.player2_text):
-            response = jsonify({"result" : True})
+            response = jsonify({"result" : 1})
         else:
-            response = jsonify({"result" : False})
+            response = jsonify({"result" : 0})
     elif(name == game.player2):
         if(textToCheck == game.player1_text):
-            response = jsonify({"result" : True})
+            response = jsonify({"result" : 1})
         else:
-            response = jsonify({"result" : False})
+            response = jsonify({"result" : 0})
 
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
