@@ -185,7 +185,7 @@ def get_text(title, name):
     texts.append(generate_text())
     texts.append(generate_text())
     if(game.player1 == name):
-            texts.append(game.player2text)
+            texts.append(game.player2_text)
     else:
             texts.append(game.player1_text)
     random.shuffle(texts)
