@@ -121,10 +121,10 @@ def join_game(title, name):
     new_game = Game(
         title = lobby.title,
         player1 = lobby.player1,
-        player1_text = "placeholder",
+        player1_text = "",
         player1_score = 0,
         player2 = name,
-        player2_text = "placeholder",
+        player2_text = "",
         player2_score = 0,
         player1_turn = True,
         round = 1,
@@ -192,9 +192,11 @@ def get_text(title, name):
     texts.append(generate_text())
     texts.append(generate_text())
     if(game.player1_turn):
-        texts.append(game.player2_text)
+        if(game.player2_text != ""):
+            texts.append(game.player2_text)
     else:
-        texts.append(game.player1_text)
+        if(game.player1_text != ""):
+            texts.append(game.player1_text)
     random.shuffle(texts)
 
     response = jsonify({"text" : texts})
