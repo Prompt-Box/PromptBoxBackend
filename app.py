@@ -150,20 +150,9 @@ def save_text(title, name):
         )
 
     #Check whose turn it is
-    if(game.player1 == name and game.player1_turn):
+    if(game.player1 == name):
         #It's player 1's turn
         game.player1_text = generatedText
-        game.player1_turn = False
-        db.session.commit()
-
-        response = jsonify({"game" : serialize_game(game)})
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        db.session.close()
-        return response
-    elif(game.player2 == name and not game.player1_turn):
-        #It's player 2's turn
-        game.player2_text = generatedText
-        game.player1_turn = True
         db.session.commit()
 
         response = jsonify({"game" : serialize_game(game)})
@@ -171,10 +160,14 @@ def save_text(title, name):
         db.session.close()
         return response
     else:
-        return Response(
-            "Not your turn",
-            status=400,
-        )
+        #It's player 2's turn
+        game.player2_text = generatedText
+        db.session.commit()
+
+        response = jsonify({"game" : serialize_game(game)})
+        response.headers.add('Access-Control-Allow-Origin', '*')
+        db.session.close()
+        return response
 
 # Let a Player get texts to guess from
 @app.route('/api/games/guess/<string:title>/<string:name>', methods=["GET"])
