@@ -44,7 +44,7 @@ def verify_password(username, password):
         return ADMIN[username] == password
     return False
 
-
+NUMBER_OF_ROUNDS = 5
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
@@ -319,14 +319,20 @@ def update_round(title):
         )
 
     game.round += 1
+
+    #Set round to negative when game is over
+    if(game.round > NUMBER_OF_ROUNDS):
+        game.round = -1
+
     game.player1_text = ""
     game.player2_text = ""
     game.player1_turn = True
 
     db.session.commit()
     db.session.close()
-    response = jsonify("round updated")
+    response = jsonify({"game" : serialize_game(game)})
     response.headers.add('Access-Control-Allow-Origin', '*')
+
     return response
 
 @app.route('/api/games/<string:title>/end', methods=['DELETE'])
