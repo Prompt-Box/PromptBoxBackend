@@ -107,7 +107,7 @@ def get_lobby():
     lobbies = [serialize_lobby(lobby) for lobby in Lobby.query.all()]
     db.session.close()
     response = jsonify({"lobbies" : lobbies})
-    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5000/')
     response.headers.add('Access-Control-Allow-Credentials', True)
     response.headers.add('Access-Control-Allow-Methods' : 'GET')
     response.headers.add('Access-Control-Allow-Headers' : 'Origin', 'Content-Type', 'Accept', 'Authorization')
