@@ -101,7 +101,6 @@ def hello():
 
 # Return All Games that have not started
 @app.route('/api/lobby', methods=["GET"])
-@auth.login_required
 def get_lobby():
 
     lobbies = [serialize_lobby(lobby) for lobby in Lobby.query.all()]
