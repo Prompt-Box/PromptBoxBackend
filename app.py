@@ -107,7 +107,9 @@ def get_lobby():
     db.session.close()
     response = jsonify({"lobbies" : lobbies})
     response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5000/')
-    response.headers.add('Access-Control-Allow-Credentials', true)
+    response.headers.add('Access-Control-Allow-Credentials', True)
+    response.headers.add('Access-Control-Allow-Methods' : 'GET')
+    response.headers.add('Access-Control-Allow-Headers' : 'Origin', 'Content-Type', 'Accept')
     return response
 
 # Let a Player Join a Lobby
