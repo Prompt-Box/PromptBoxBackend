@@ -31,18 +31,6 @@ def serialize_game(g):
         "round": g.round,
     }
 
-"""Authentication"""
-auth = HTTPBasicAuth()
-
-ADMIN = {
-    "username": "password"
-}
-
-@auth.verify_password
-def verify_password(username, password):
-    if username in ADMIN:
-        return ADMIN[username] == password
-    return False
 
 NUMBER_OF_ROUNDS = 5
 
@@ -90,7 +78,6 @@ def generate_text():
     return output
 
 @app.route("/")
-@auth.login_required
 def hello():
     return "Hello World"
 
@@ -101,21 +88,16 @@ def hello():
 
 # Return All Games that have not started
 @app.route('/api/lobby', methods=["GET"])
-@auth.login_required
 def get_lobby():
 
     lobbies = [serialize_lobby(lobby) for lobby in Lobby.query.all()]
     db.session.close()
     response = jsonify({"lobbies" : lobbies})
-    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:5000/')
-    response.headers.add('Access-Control-Allow-Credentials', True)
-    response.headers.add('Access-Control-Allow-Methods' : 'GET')
-    response.headers.add('Access-Control-Allow-Headers' : 'Origin', 'Content-Type', 'Accept', 'Authorization')
+    response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
 # Let a Player Join a Lobby
 @app.route('/api/lobby/join/<string:title>/<string:name>', methods=["POST"])
-@auth.login_required
 def join_game(title, name):
     lobby = Lobby.query.get(title)
     if not lobby:
@@ -144,7 +126,6 @@ def join_game(title, name):
 
 # Let a Player add their text
 @app.route('/api/games/text/<string:title>/<string:name>', methods=["POST"])
-@auth.login_required
 def save_text(title, name):
     game = Game.query.get(title)
     generatedText = request.args.get('text')
@@ -177,7 +158,6 @@ def save_text(title, name):
 
 # Let a Player get texts to guess from
 @app.route('/api/games/guess/<string:title>/<string:name>', methods=["GET"])
-@auth.login_required
 def get_text(title, name):
     game = Game.query.get(title)
 
@@ -203,7 +183,6 @@ def get_text(title, name):
 
 # Let a Player check if their guess is right
 @app.route('/api/games/check/<string:title>/<string:name>', methods=["GET"])
-@auth.login_required
 def get_answer(title, name):
     game = Game.query.get(title)
     if(not game):
@@ -231,7 +210,6 @@ def get_answer(title, name):
 
 # Let a Player Create a Lobby
 @app.route('/api/lobby/create/<string:title>/<string:name>', methods=["POST"])
-@auth.login_required
 def create_game(title, name):
     # If title already used
     if Lobby.query.get(title) or Game.query.get(title):
@@ -249,7 +227,6 @@ def create_game(title, name):
 """GAME FUNCTIONS"""
 # Return Game status
 @app.route('/api/games/<string:title>', methods=['GET'])
-@auth.login_required
 def get_game(title):
     game = Game.query.get(title)
     if not game:
@@ -269,7 +246,6 @@ def get_game(title):
 
 # Update Score
 @app.route('/api/games/<string:title>/<string:name>', methods=['POST'])
-@auth.login_required
 def update_score(title, name):
     game = Game.query.get(title)
     if not game:
@@ -294,7 +270,6 @@ def update_score(title, name):
 
 # Update Turn
 @app.route('/api/games/<string:title>/turn', methods=['POST'])
-@auth.login_required
 def update_turn(title):
     game = Game.query.get(title)
     if not game:
@@ -312,7 +287,6 @@ def update_turn(title):
 
 # Update Round
 @app.route('/api/games/<string:title>/round', methods=['POST'])
-@auth.login_required
 def update_round(title):
     game = Game.query.get(title)
     if not game:
@@ -339,7 +313,6 @@ def update_round(title):
     return response
 
 @app.route('/api/games/<string:title>/end', methods=['DELETE'])
-@auth.login_required
 def end_game(title):
     game = Game.query.get(title)
     db.session.delete(game)
