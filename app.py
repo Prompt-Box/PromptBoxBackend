@@ -83,47 +83,7 @@ def hello():
 
 
 
-
-"""Test Functions"""
-
-# Return All Games that have not started
-@app.route('/api/lobby', methods=["GET"])
-def get_lobby():
-
-    lobbies = [serialize_lobby(lobby) for lobby in Lobby.query.all()]
-    db.session.close()
-    response = jsonify({"lobbies" : lobbies})
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return response
-
-# Let a Player Join a Lobby
-@app.route('/api/lobby/join/<string:title>/<string:name>', methods=["POST"])
-def join_game(title, name):
-    lobby = Lobby.query.get(title)
-    if not lobby:
-        return Response(
-            "Lobby Title Not valid",
-            status=400,
-        )
-    new_game = Game(
-        title = lobby.title,
-        player1 = lobby.player1,
-        player1_text = "",
-        player1_score = 0,
-        player2 = name,
-        player2_text = "",
-        player2_score = 0,
-        player1_turn = True,
-        round = 1,
-    )
-    # Delete Lobby as it is already being used, Add Game
-    db.session.delete(lobby)
-    db.session.add(new_game)
-    db.session.commit()
-    response = jsonify({"game" : serialize_game(new_game)})
-    response.headers.add('Access-Control-Allow-Origin', '*')
-    return response
-
+"""Text-Related Functions"""
 # Let a Player add their text
 @app.route('/api/games/text/<string:title>/<string:name>', methods=["POST"])
 def save_text(title, name):
@@ -208,10 +168,59 @@ def get_answer(title, name):
     return response
 
 
+"""Lobby Functions"""
+
+# Return All Games that have not started
+@app.route('/api/lobby', methods=["GET"])
+def get_lobby():
+
+    lobbies = [serialize_lobby(lobby) for lobby in Lobby.query.all()]
+    db.session.close()
+    response = jsonify({"lobbies" : lobbies})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+# Let a Player Join a Lobby
+@app.route('/api/lobby/join', methods=["POST"])
+def join_game():
+
+    title = request.get_json().get("title")
+    name = request.get_json().get("name")
+    print(title)
+    lobby = Lobby.query.get(title)
+    if not lobby:
+        return Response(
+            "Lobby Title Not valid",
+            status=400,
+        )
+    new_game = Game(
+        title = lobby.title,
+        player1 = lobby.player1,
+        player1_text = "",
+        player1_score = 0,
+        player2 = name,
+        player2_text = "",
+        player2_score = 0,
+        player1_turn = True,
+        round = 1,
+    )
+    # Delete Lobby as it is already being used, Add Game
+    db.session.delete(lobby)
+    db.session.add(new_game)
+    db.session.commit()
+    response = jsonify({"game" : serialize_game(new_game)})
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
 # Let a Player Create a Lobby
-@app.route('/api/lobby/create/<string:title>/<string:name>', methods=["POST"])
-def create_game(title, name):
+@app.route('/api/lobby/create', methods=["POST"])
+def create_game():
     # If title already used
+
+    title = request.get_json().get("title")
+    name = request.get_json().get("name")
+
     if Lobby.query.get(title) or Game.query.get(title):
         response = jsonify("Title already used")
         response.headers.add('Access-Control-Allow-Origin', '*')
