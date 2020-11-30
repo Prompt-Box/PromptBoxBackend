@@ -189,9 +189,10 @@ def join_game():
     print(title)
     lobby = Lobby.query.get(title)
     if not lobby:
-        response = jsonify({"Lobby Title not valid"})
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response
+        return Response(
+            "Game Title Not valid",
+            status=400,
+        )
     new_game = Game(
         title = lobby.title,
         player1 = lobby.player1,
@@ -223,6 +224,7 @@ def create_game():
     if Lobby.query.get(title) or Game.query.get(title):
         response = jsonify("Title already used")
         response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
         return response
 
     new_lobby = Lobby(title = title, player1 = name, num_players = 1)
