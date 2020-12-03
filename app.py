@@ -27,7 +27,8 @@ def serialize_game(g):
         "player2": g.player2,
         "player2_text": g.player2_text,
         "player2_score": g.player2_score,
-        "player1_turn": g.player1_turn,
+        "player1_hasGone": g.player1_hasGone,
+        "player2_hasGone": g.player2_hasGone,
         "round": g.round,
     }
 
@@ -53,6 +54,8 @@ class Game(db.Model):
     player2_text = db.Column(db.String(200), nullable=False)
     player2_score = db.Column(db.Integer, nullable=False)
     player1_turn = db.Column(db.Boolean, nullable=False)
+    player1_hasGone = db.Column(db.Boolean, nullable=False)
+    player2_hasGone = db.Column(db.Boolean, nullable=False)
     round = db.Column(db.Integer, nullable=False)
 
 db.create_all()
@@ -114,6 +117,8 @@ def join_game(title, name):
         player2_text = "",
         player2_score = 0,
         player1_turn = True,
+        player1_hasGone = False,
+        player2_hasGone = False,
         round = 1,
     )
     # Delete Lobby as it is already being used, Add Game
@@ -285,6 +290,36 @@ def update_turn(title):
     response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
+# Update hasGone
+@app.route('/api/games/<string:title>/<string:name>/gone', methods=['POST'])
+def update_turn(title, name):
+    game = Game.query.get(title)
+    if not game:
+        return Response(
+            "Game Title Not valid",
+            status=400,
+        )
+
+    if name == game.player1:
+        game.player1_hasGone = not game.player1_hasGone
+
+    else if name == game.player2:
+        game.player2_hasGone = not game.player2_hasGone
+
+    else:
+        return Response(
+            "Player Name Not valid",
+            status=400,
+        )
+
+    db.session.commit()
+    response = jsonify("hasGone updated")
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    return response
+
+
+
+
 # Update Round
 @app.route('/api/games/<string:title>/round', methods=['POST'])
 def update_round(title):
@@ -315,6 +350,11 @@ def update_round(title):
 @app.route('/api/games/<string:title>/end', methods=['DELETE'])
 def end_game(title):
     game = Game.query.get(title)
+    if not game:
+        return Response(
+            "Game Title Not valid",
+            status=400,
+        )
     db.session.delete(game)
     db.session.commit()
     response = jsonify("game deleted")
