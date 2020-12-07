@@ -2,6 +2,7 @@
 from flask import Flask, render_template, jsonify, request, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_httpauth import HTTPBasicAuth
+import uuid
 import numpy as np
 import random
 from hmmlearn import hmm
@@ -39,14 +40,16 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
 class Lobby(db.Model):
-    #id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
-    title = db.Column(db.String(120), primary_key=True, unique=True, nullable=False)
+    #id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    id = db.Column(db.String, primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    title = db.Column(db.String(120), primary_key=True, unique=False, nullable=False)
     player1 = db.Column(db.String(50), nullable=False)
     num_players = db.Column(db.Integer, nullable=False)
 
 class Game(db.Model):
     #id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
-    title = db.Column(db.String(120), primary_key=True, unique=True, nullable=False)
+    id = db.Column(db.String, primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    title = db.Column(db.String(120), primary_key=False, unique=True, nullable=False)
     player1 = db.Column(db.String(50), nullable=False)
     player1_text = db.Column(db.String(200), nullable=False)
     player1_score = db.Column(db.Integer, nullable=False)
@@ -292,7 +295,7 @@ def update_turn(title):
 
 # Update hasGone
 @app.route('/api/games/<string:title>/<string:name>/gone', methods=['POST'])
-def update_turn(title, name):
+def update_hasGone(title, name):
     game = Game.query.get(title)
     if not game:
         return Response(
@@ -303,7 +306,7 @@ def update_turn(title, name):
     if name == game.player1:
         game.player1_hasGone = not game.player1_hasGone
 
-    else if name == game.player2:
+    elif name == game.player2:
         game.player2_hasGone = not game.player2_hasGone
 
     else:

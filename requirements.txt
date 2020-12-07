@@ -9,3 +9,4 @@ numpy==1.19.4
 hmmlearn==0.2.4
 flask_sqlalchemy==2.4.4
 flask_httpauth==4.1.0
+uuid==1.30
