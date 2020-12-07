@@ -315,6 +315,20 @@ def update_hasGone(title, name):
             status=400,
         )
 
+    if game.player1_hasGone == True and game.player2_hasGone == True:
+        game.round += 1
+
+        #Set round to negative when game is over
+        if(game.round > NUMBER_OF_ROUNDS):
+            game.round = -1
+
+        game.player1_text = ""
+        game.player2_text = ""
+        game.player1_turn = True
+
+        game.player1_hasGone, game.player2_hasGone = False, False
+
+
     db.session.commit()
     response = jsonify("hasGone updated")
     response.headers.add('Access-Control-Allow-Origin', '*')
