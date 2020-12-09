@@ -41,14 +41,14 @@ db = SQLAlchemy(app)
 
 class Lobby(db.Model):
     #id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    id = db.Column(db.String, primary_key=False, default=uuid.uuid4, unique=True, nullable=False)
+    #id = db.Column(db.String, primary_key=False, default=uuid.uuid4, unique=True, nullable=False)
     title = db.Column(db.String(120), primary_key=True, unique=True, nullable=False)
     player1 = db.Column(db.String(50), nullable=False)
     num_players = db.Column(db.Integer, nullable=False)
 
 class Game(db.Model):
     #id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
-    id = db.Column(db.String, primary_key=False, default=uuid.uuid4, unique=True, nullable=False)
+    #id = db.Column(db.String, primary_key=False, default=uuid.uuid4, unique=True, nullable=False)
     title = db.Column(db.String(120), primary_key=True, unique=True, nullable=False)
     player1 = db.Column(db.String(50), nullable=False)
     player1_text = db.Column(db.String(200), nullable=False)
