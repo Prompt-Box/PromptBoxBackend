@@ -2,7 +2,6 @@
 from flask import Flask, render_template, jsonify, request, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_httpauth import HTTPBasicAuth
-import uuid
 import numpy as np
 import random
 from hmmlearn import hmm
