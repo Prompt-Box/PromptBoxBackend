@@ -6,7 +6,7 @@ import numpy as np
 import uuid
 import random
 from hmmlearn import hmm
-import model
+#import model
 import markovify
 import pickle
 app = Flask(__name__)
@@ -40,6 +40,12 @@ NUMBER_OF_ROUNDS = 5
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
+
+#Build markovify model
+with open("hmm.pkl", "rb") as f:
+    model = pickle.load(f)
+
+model = markovify.Text.from_json(model)
 
 class Lobby(db.Model):
     #id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
@@ -392,11 +398,7 @@ if __name__ == '__main__':
     #network = model.createModel()
     #network = model.trainModel(network, languageModel, dictionary)
 
-    #Build markovify model
-    with open("hmm.pkl", "rb") as f:
-        model = pickle.load(f)
 
-    model = markovify.Text.from_json(model)
 
     # threaded, so many users can use
     app.run(threaded=True)
