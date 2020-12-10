@@ -7,6 +7,7 @@ import uuid
 import random
 from hmmlearn import hmm
 import model
+import markovify
 app = Flask(__name__)
 
 #sample JSON formatted Game, to be replaced with SQL database
@@ -71,17 +72,17 @@ db.create_all()
 
 def generate_text():
 
-    languageModel, dictionary = model.loadLanguage()
+    #languageModel, dictionary = model.loadLanguage()
 
     #Generate Text
-    network = model.loadModel()
-    symbols, states = network.sample(10)
-    output = ""
-    for num in np.squeeze(symbols):
-        if(num >= 0 and num < len(languageModel)):
-            output += languageModel[int(num)] + " "
+    #network = model.loadModel()
+    #symbols, states = network.sample(10)
+    #output = ""
+    #for num in np.squeeze(symbols):
+    #    if(num >= 0 and num < len(languageModel)):
+    #        output += languageModel[int(num)] + " "
 
-    return output
+    return model.make_sentence()
 
 @app.route("/")
 def hello():
@@ -389,6 +390,12 @@ if __name__ == '__main__':
 
     #network = model.createModel()
     #network = model.trainModel(network, languageModel, dictionary)
+
+    #Build markovify model
+    with open("hmm.pkl", "rb") as f:
+        model = pickle.load(f)
+
+    model = markovify.Text.from_json(model)
 
     # threaded, so many users can use
     app.run(threaded=True)
