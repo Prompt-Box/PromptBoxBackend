@@ -8,6 +8,7 @@ import random
 from hmmlearn import hmm
 import model
 import markovify
+import pickle
 app = Flask(__name__)
 
 #sample JSON formatted Game, to be replaced with SQL database
